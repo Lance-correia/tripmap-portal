@@ -4,6 +4,7 @@ version: '3'
 services:
   tripmap:
     build: .
+    image: ${GITHUB_REPOSITORY}/tripmap:latest
     ports:
       - "8000:8000"
     restart: unless-stopped
