@@ -31,4 +31,5 @@ COPY --from=build /app/dist /app
 EXPOSE 80
 
 # Start the HTTP server
-CMD ["http-server", ".", "-p", "80", "--cors", "-g", "--proxy", "http://localhost:80?"]
+# Removed the problematic proxy flag and simplified the configuration
+CMD ["http-server", ".", "-p", "80", "--cors"]
