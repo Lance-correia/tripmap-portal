@@ -24,7 +24,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.tripmap.rule=PathPrefix(`/`)"
       - "traefik.http.routers.tripmap.entrypoints=web"
-      - "traefik.http.services.tripmap.loadbalancer.server.port=80"
+      - "traefik.http.services.tripmap.loadbalancer.server.port=3000"
     restart: unless-stopped
     networks:
       - app-network

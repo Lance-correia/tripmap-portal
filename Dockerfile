@@ -15,17 +15,20 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
+# Production stage - using a simple HTTP server
+FROM node:20-alpine
 
-# Copy the built app to nginx html directory
-COPY --from=build /app/dist /usr/share/nginx/html
+# Create app directory
+WORKDIR /app
 
-# Copy a custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Install a lightweight HTTP server
+RUN npm install -g serve
 
-# Expose port 80
-EXPOSE 80
+# Copy the built app
+COPY --from=build /app/dist /app
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Expose port 3000 for Traefik to route to
+EXPOSE 3000
+
+# Start the static file server
+CMD ["serve", "-s", ".", "-l", "3000"]
