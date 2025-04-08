@@ -15,21 +15,17 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Production stage - using a simple HTTP server
-FROM node:20-alpine
+# Production stage
+FROM nginx:alpine
 
-# Create app directory
-WORKDIR /app
+# Copy the built app to nginx html directory
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# Install a lightweight HTTP server
-RUN npm install -g http-server
+# Copy a custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy the built app
-COPY --from=build /app/dist /app
-
-# Expose port 80 for Traefik to route to
+# Expose port 80
 EXPOSE 80
 
-# Start the HTTP server
-# Removed the problematic proxy flag and simplified the configuration
-CMD ["http-server", ".", "-p", "80", "--cors"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
