@@ -1,34 +1,12 @@
-
-# Base Node.js image
-FROM node:20-alpine as build
-
-# Set working directory
+# Stage 1: Build the app
+FROM node:18-alpine AS build
 WORKDIR /app
-
-# Copy package files and install dependencies
-COPY package*.json ./
-RUN npm ci
-
-# Copy all files
 COPY . .
+RUN npm install && npm run build
 
-# Build the application
-RUN npm run build
+# Stage 2: Serve the built app
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
 
-# Production stage - using a simple HTTP server
-FROM node:20-alpine
-
-# Create app directory
-WORKDIR /app
-
-# Install a lightweight HTTP server
-RUN npm install -g serve
-
-# Copy the built app
-COPY --from=build /app/dist /app
-
-# Expose port 3000 for Traefik to route to
-EXPOSE 3000
-
-# Start the static file server
-CMD ["serve", "-s", ".", "-l", "3000"]

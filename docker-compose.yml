@@ -1,34 +1,48 @@
-
 version: '3'
 
 services:
   traefik:
-    image: traefik:v2.10
+    image: traefik:v3.0
     command:
-      - "--api.insecure=true"
+      - "--api.insecure=true"  # Optional dashboard at :8080
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
       - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:8000"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=monkemakess@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
-      - "8000:8000"
-      - "8080:8080" # Traefik dashboard
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
-    restart: unless-stopped
+      - "./letsencrypt:/letsencrypt"
     networks:
-      - app-network
+      - web
 
-  tripmap:
+  vite-app:
     build: .
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.tripmap.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.tripmap.entrypoints=web"
-      - "traefik.http.services.tripmap.loadbalancer.server.port=3000"
-    restart: unless-stopped
+
+      # HTTP router (optional)
+      - "traefik.http.routers.vite.rule=Host(`feminaexpress.com`)"
+      - "traefik.http.routers.vite.entrypoints=web"
+
+      # HTTPS router
+      - "traefik.http.routers.vite-secure.rule=Host(`feminaexpress.com`)"
+      - "traefik.http.routers.vite-secure.entrypoints=websecure"
+      - "traefik.http.routers.vite-secure.tls=true"
+      - "traefik.http.routers.vite-secure.tls.certresolver=myresolver"
+
+      # Service port inside the container
+      - "traefik.http.services.vite.loadbalancer.server.port=80"
     networks:
-      - app-network
+      - web
 
 networks:
-  app-network:
-    driver: bridge
+  web:
+    external: false
+
