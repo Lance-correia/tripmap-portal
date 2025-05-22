@@ -28,11 +28,11 @@ services:
       - "traefik.enable=true"
 
       # HTTP router (optional)
-      - "traefik.http.routers.vite.rule=Host(`feminaexpress.com`)"
+      - "traefik.http.routers.vite.rule=Host(`www.feminaexpress.com`)"
       - "traefik.http.routers.vite.entrypoints=web"
 
       # HTTPS router
-      - "traefik.http.routers.vite-secure.rule=Host(`feminaexpress.com`)"
+      - "traefik.http.routers.vite-secure.rule=Host(`www.feminaexpress.com`)"
       - "traefik.http.routers.vite-secure.entrypoints=websecure"
       - "traefik.http.routers.vite-secure.tls=true"
       - "traefik.http.routers.vite-secure.tls.certresolver=myresolver"
